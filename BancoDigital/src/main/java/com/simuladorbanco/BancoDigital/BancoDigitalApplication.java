@@ -1,5 +1,9 @@
 package com.simuladorbanco.BancoDigital;
 
+import com.simuladorbanco.BancoDigital.controller.ContaController;
+import com.simuladorbanco.BancoDigital.model.Conta;
+import com.simuladorbanco.BancoDigital.model.Role;
+import com.simuladorbanco.BancoDigital.repository.ContaRepository;
 import com.simuladorbanco.BancoDigital.view.TelaInicial;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -8,6 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.simuladorbanco.BancoDigital.repository")
@@ -17,13 +23,57 @@ public class BancoDigitalApplication implements CommandLineRunner {
 	@Autowired
 	private TelaInicial telaInicial;
 
+	@Autowired
+	private ContaRepository contaRepository;
+
+	@Autowired
+	private ContaController contaController;
+
 	public static void main(String[] args) {
 		SpringApplication.run(BancoDigitalApplication.class, args);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
+
+		Conta conta = contaRepository.findByEmail("admin@email.com");
+
+		if(conta == null){
+			System.out.println("Criando novo usuário ADMIN...");
+			conta = new Conta();
+			conta.setNome("ADMIN");
+			conta.setEmail("admin@email.com");
+			conta.setSaldo(100.0);
+			conta.setSenha("master123");
+			Role role = new Role();
+			role.setRoleName("ADMIN");
+			conta.getRoles().add(role);
+
+			contaController.adicionarConta(conta);
+		}
+		Conta contaSalva = contaRepository.findByEmail("admin@email.com");
+
+		if(contaSalva==null){
+			System.out.println("Conta não encontrada");
+		}
+		else {
+			System.out.println("Conta encontrada: " + contaSalva.getEmail());
+		}
+
+		conta = contaRepository.findByEmail("user@email.com");
+
+		if(conta == null){
+			conta = new Conta();
+			conta.setNome("USER");
+			conta.setEmail("user@email.com");
+			conta.setSenha("user123");
+			conta.setSaldo(100.0);
+			Role role = new Role();
+			role.setRoleName("USER");
+			conta.getRoles().add(role);
+			contaController.adicionarConta(conta);
+		}
 		telaInicial.iniciar();
 	}
-
 }
+

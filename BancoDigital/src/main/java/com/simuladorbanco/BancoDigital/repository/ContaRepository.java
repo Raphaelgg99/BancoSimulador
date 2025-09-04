@@ -2,7 +2,9 @@ package com.simuladorbanco.BancoDigital.repository;
 
 import com.simuladorbanco.BancoDigital.model.Conta;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
@@ -11,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface ContaRepository extends JpaRepository<Conta, Long> {
+    @Query("SELECT c FROM Conta c JOIN FETCH c.roles WHERE c.email= (:email)")
+    public Conta findByEmail(@Param("email") String email);
     boolean existsBySenha(String senha);
-    Optional<Conta> findByEmail(String email);
 }
