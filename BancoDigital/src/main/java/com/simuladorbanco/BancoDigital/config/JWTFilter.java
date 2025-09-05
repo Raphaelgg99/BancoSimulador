@@ -1,6 +1,5 @@
 package com.simuladorbanco.BancoDigital.config;
 
-import com.simuladorbanco.BancoDigital.model.Role;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -29,9 +28,10 @@ public class JWTFilter extends OncePerRequestFilter {
         //esta implementação só esta validando a integridade do token
         try {
             if(token!=null && !token.isEmpty()) {
+                System.out.println("Token recebido: " + token); // Verifica o token recebido
                 JWTObject tokenObject = JWTCreator.create(token,SecurityConfig.PREFIX, SecurityConfig.KEY);
 
-                List<SimpleGrantedAuthority> authorities = authorities(converter(tokenObject.getRoles()));
+                List<SimpleGrantedAuthority> authorities = authorities(tokenObject.getRoles());
 
                 UsernamePasswordAuthenticationToken userToken =
                         new UsernamePasswordAuthenticationToken(
@@ -42,6 +42,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(userToken);
 
             }else {
+                System.out.println("Token está vazio ou nulo");
                 SecurityContextHolder.clearContext();
             }
             filterChain.doFilter(request, response);
@@ -56,9 +57,4 @@ public class JWTFilter extends OncePerRequestFilter {
                 .collect(Collectors.toList());
     }
 
-    public static List<String> converter(Set<Role> roles) {
-        return roles.stream()
-                .map(Role::getRoleName)  // Obtemos o nome da role
-                .toList();
-    }
 }

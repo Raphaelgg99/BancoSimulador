@@ -1,7 +1,5 @@
 package com.simuladorbanco.BancoDigital.config;
 
-import com.simuladorbanco.BancoDigital.model.Role;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +9,7 @@ public class JWTObject {
     private String subject; // nome do usuario
     private Date issuedAt; // data de criação do token
     private Date expiration; // data de expiração do token
-    private Set<Role> roles; // perfis de acesso
+    private List<String> roles; // perfis de acesso
 
     public String getSubject() {
         return subject;
@@ -21,11 +19,11 @@ public class JWTObject {
         this.subject = subject;
     }
 
-    public Set<Role> getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
@@ -49,4 +47,3 @@ public class JWTObject {
         this.roles = Arrays.asList(roles);
     }*/
 }
-

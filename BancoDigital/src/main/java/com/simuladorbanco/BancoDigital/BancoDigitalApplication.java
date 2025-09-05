@@ -2,7 +2,6 @@ package com.simuladorbanco.BancoDigital;
 
 import com.simuladorbanco.BancoDigital.controller.ContaController;
 import com.simuladorbanco.BancoDigital.model.Conta;
-import com.simuladorbanco.BancoDigital.model.Role;
 import com.simuladorbanco.BancoDigital.repository.ContaRepository;
 import com.simuladorbanco.BancoDigital.view.TelaInicial;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,10 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 @SpringBootApplication
@@ -45,19 +48,20 @@ public class BancoDigitalApplication implements CommandLineRunner {
 			conta.setEmail("admin@email.com");
 			conta.setSaldo(100.0);
 			conta.setSenha("master123");
-			Role role = new Role();
-			role.setRoleName("ADMIN");
-			conta.getRoles().add(role);
-
+			// Adicionando as roles como lista de strings
+			List<String> roles = new ArrayList<>();
+			roles.add("ADMIN");
+			conta.setRoles(roles);
+			System.out.println("Roles da conta: " + conta.getRoles());
 			contaController.adicionarConta(conta);
 		}
 		Conta contaSalva = contaRepository.findByEmail("admin@email.com");
-
 		if(contaSalva==null){
 			System.out.println("Conta não encontrada");
 		}
 		else {
 			System.out.println("Conta encontrada: " + contaSalva.getEmail());
+			System.out.println("Roles da conta : " + contaSalva.getRoles());
 		}
 
 		conta = contaRepository.findByEmail("user@email.com");
@@ -68,9 +72,10 @@ public class BancoDigitalApplication implements CommandLineRunner {
 			conta.setEmail("user@email.com");
 			conta.setSenha("user123");
 			conta.setSaldo(100.0);
-			Role role = new Role();
-			role.setRoleName("USER");
-			conta.getRoles().add(role);
+			// Adicionando as roles como lista de strings
+			List<String> roles = new ArrayList<>();
+			roles.add("USER");
+			conta.setRoles(roles);
 			contaController.adicionarConta(conta);
 		}
 		telaInicial.iniciar();

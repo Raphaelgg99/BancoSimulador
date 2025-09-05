@@ -14,6 +14,6 @@ import java.util.Optional;
 @Repository
 public interface ContaRepository extends JpaRepository<Conta, Long> {
     @Query("SELECT c FROM Conta c JOIN FETCH c.roles WHERE c.email= (:email)")
-    public Conta findByEmail(@Param("email") String email);
+    Conta findByEmail(@Param("email") String email);
     boolean existsBySenha(String senha);
 }

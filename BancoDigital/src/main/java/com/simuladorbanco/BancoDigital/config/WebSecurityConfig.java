@@ -37,12 +37,12 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/").permitAll()
-                                .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/conta/adicionar").permitAll()  // Allow POST for this route
-                                .requestMatchers("/conta/listartodas").hasRole("ADMIN")
-                                .anyRequest().authenticated()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/conta/adicionar").permitAll()  // Allow POST for this route
+                        .requestMatchers("/conta/listartodas").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 ) // Authentication required for all other routes
                 .csrf(AbstractHttpConfigurer::disable)// Disabling CSRF
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
