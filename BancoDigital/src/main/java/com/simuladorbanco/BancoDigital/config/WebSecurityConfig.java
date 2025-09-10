@@ -24,13 +24,11 @@ public class WebSecurityConfig {
     }
 
     private static final String[] SWAGGER_WHITELIST = {
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/webjars/**"
+            "/v3/api-docs",         // JSON raiz
+            "/v3/api-docs/**",      // JSON por grupo
+            "/v3/api-docs.yaml",    // YAML
+            "/swagger-ui.html",     // redirect helper
+            "/swagger-ui/**"        // assets e index.html
     };
 
     @Bean
@@ -42,6 +40,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/conta/adicionar").permitAll()  // Allow POST for this route
                         .requestMatchers("/conta/listartodas").hasRole("ADMIN")
+                        .requestMatchers("/conta/{numeroDaConta}/atualizar").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
                 ) // Authentication required for all other routes
                 .csrf(AbstractHttpConfigurer::disable)// Disabling CSRF

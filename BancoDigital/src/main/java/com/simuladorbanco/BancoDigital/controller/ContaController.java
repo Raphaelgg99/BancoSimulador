@@ -1,5 +1,6 @@
 package com.simuladorbanco.BancoDigital.controller;
 
+import com.simuladorbanco.BancoDigital.dtos.TransferenciaRequest;
 import com.simuladorbanco.BancoDigital.exception.NomeNullException;
 import com.simuladorbanco.BancoDigital.exception.SenhaNullException;
 import com.simuladorbanco.BancoDigital.exception.SenhaRepetidaException;
@@ -9,6 +10,7 @@ import com.simuladorbanco.BancoDigital.service.ContaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,33 +27,36 @@ public class ContaController {
     @Autowired
     ContaService contaService;
 
+    @Autowired
+    private PasswordEncoder encoder;
+
     @PutMapping("/{numeroDaConta}/depositar")
     @Transactional
-    public Conta depositar(@RequestParam Optional<Double> valor, @PathVariable Long numeroDaConta) {
+    public Conta depositar(@RequestBody Double valor, @PathVariable Long numeroDaConta) {
         Conta conta = contaRepository.findById(numeroDaConta)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        conta.setSaldo(conta.getSaldo() + valor.orElse(0.0));
+        conta.setSaldo(conta.getSaldo() + valor);
         System.out.println("Conta atualizada: " + conta);
         return contaRepository.save(conta);
     }
 
     @PutMapping("/{numeroDaConta}/sacar")
-    public Conta sacar(double valor, @PathVariable Long numeroDaConta){
+    public Conta sacar(@RequestBody double valor, @PathVariable Long numeroDaConta){
         Conta conta = contaRepository.findById(numeroDaConta)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        conta.setSaldo(conta.getSaldo() + valor);
+        conta.setSaldo(conta.getSaldo() - valor);
         return contaRepository.save(conta);
     }
 
-    @PutMapping("/{numeroDaConta}/tranferencia")
-    public void tranferencia(double valor, @PathVariable Long numeroContaRemetente
-            , Long numeroContaDestinatario){
+    @PutMapping("/{numeroContaRemetente}/transferencia")
+    public void tranferencia(@RequestBody TransferenciaRequest transferencia, @PathVariable Long numeroContaRemetente
+            ){
         Conta contaRemetente = contaRepository.findById(numeroContaRemetente)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        Conta contaDestinario = contaRepository.findById(numeroContaRemetente)
+        Conta contaDestinario = contaRepository.findById(transferencia.getNumeroContaDestinatario())
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        contaRemetente.setSaldo(contaRemetente.getSaldo() - valor);
-        contaDestinario.setSaldo(contaDestinario.getSaldo() + valor);
+        contaRemetente.setSaldo(contaRemetente.getSaldo() - transferencia.getValor());
+        contaDestinario.setSaldo(contaDestinario.getSaldo() + transferencia.getValor());
         contaRepository.save(contaRemetente);
         contaRepository.save(contaDestinario);
     }
@@ -63,12 +68,8 @@ public class ContaController {
     }
 
     @PutMapping("/{numeroDaConta}/atualizar")
-    public Conta atualizarConta(@PathVariable Long numeroDaConta,Conta contaExistente){
-        Conta conta = contaRepository.findById(numeroDaConta).
-                orElseThrow(() -> new RuntimeException("Contato não encontrado"));
-        conta.setNome(contaExistente.getNome());
-        conta.setSenha(contaExistente.getSenha());
-        return contaRepository.save(conta);
+    public void atualizarConta(@PathVariable Long numeroDaConta,@RequestBody Conta contaAtualizada){
+        contaService.atualizarConta(numeroDaConta, contaAtualizada);
     }
 
     @DeleteMapping("/{numeroDaConta}")
