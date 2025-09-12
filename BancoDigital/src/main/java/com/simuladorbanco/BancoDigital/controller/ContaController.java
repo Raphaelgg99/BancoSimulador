@@ -8,6 +8,7 @@ import com.simuladorbanco.BancoDigital.model.Conta;
 import com.simuladorbanco.BancoDigital.repository.ContaRepository;
 import com.simuladorbanco.BancoDigital.service.ContaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,55 +33,45 @@ public class ContaController {
 
     @PutMapping("/{numeroDaConta}/depositar")
     @Transactional
-    public Conta depositar(@RequestBody Double valor, @PathVariable Long numeroDaConta) {
-        Conta conta = contaRepository.findById(numeroDaConta)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        conta.setSaldo(conta.getSaldo() + valor);
-        System.out.println("Conta atualizada: " + conta);
-        return contaRepository.save(conta);
+    public ResponseEntity<Conta> depositar(@RequestBody Double valor, @PathVariable Long numeroDaConta) {
+        Conta conta = contaService.depositar(valor, numeroDaConta);
+        return ResponseEntity.ok(conta);
     }
 
     @PutMapping("/{numeroDaConta}/sacar")
-    public Conta sacar(@RequestBody double valor, @PathVariable Long numeroDaConta){
-        Conta conta = contaRepository.findById(numeroDaConta)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        conta.setSaldo(conta.getSaldo() - valor);
-        return contaRepository.save(conta);
+    public ResponseEntity <Conta> sacar(@RequestBody double valor, @PathVariable Long numeroDaConta){
+        Conta conta = contaService.sacar(valor, numeroDaConta);
+        return ResponseEntity.ok(conta);
     }
 
     @PutMapping("/{numeroContaRemetente}/transferencia")
-    public void tranferencia(@RequestBody TransferenciaRequest transferencia, @PathVariable Long numeroContaRemetente
-            ){
-        Conta contaRemetente = contaRepository.findById(numeroContaRemetente)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        Conta contaDestinario = contaRepository.findById(transferencia.getNumeroContaDestinatario())
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
-        contaRemetente.setSaldo(contaRemetente.getSaldo() - transferencia.getValor());
-        contaDestinario.setSaldo(contaDestinario.getSaldo() + transferencia.getValor());
-        contaRepository.save(contaRemetente);
-        contaRepository.save(contaDestinario);
+    public ResponseEntity <Conta> transferencia(@RequestBody TransferenciaRequest transferencia,
+                                              @PathVariable Long numeroContaRemetente){
+        Conta conta = contaService.tranferencia(transferencia, numeroContaRemetente);
+        return ResponseEntity.ok(conta);
     }
 
 
     @PostMapping("/adicionar")
-    public void adicionarConta(@RequestBody Conta conta) {
+    public ResponseEntity<Conta> adicionarConta(@RequestBody Conta conta) {
         contaService.criarConta(conta);
+        return ResponseEntity.ok(conta);
     }
 
     @PutMapping("/{numeroDaConta}/atualizar")
-    public void atualizarConta(@PathVariable Long numeroDaConta,@RequestBody Conta contaAtualizada){
+    public ResponseEntity<Conta> atualizarConta(@PathVariable Long numeroDaConta,@RequestBody Conta contaAtualizada){
         contaService.atualizarConta(numeroDaConta, contaAtualizada);
+        return ResponseEntity.ok(contaAtualizada);
     }
 
     @DeleteMapping("/{numeroDaConta}")
     public void removerConta(@PathVariable Long numeroDaConta){
-        Conta conta = contaRepository.findById(numeroDaConta).
-                orElseThrow(() -> new RuntimeException("Contato não encontrado"));
-        contaRepository.delete(conta);
+        contaService.removerConta(numeroDaConta);
     }
 
     @GetMapping("/listartodas")
-    public List<Conta> listarTodos(){
-        return contaRepository.findAll();
+    public ResponseEntity <List<Conta>> listarTodos(){
+        List<Conta> contas = contaService.listarTodos();
+        return ResponseEntity.ok(contas);
     }
 }

@@ -1,6 +1,7 @@
 package com.simuladorbanco.BancoDigital.controller;
 
 import com.simuladorbanco.BancoDigital.exception.NomeNullException;
+import com.simuladorbanco.BancoDigital.exception.SaldoInsuficienteException;
 import com.simuladorbanco.BancoDigital.exception.SenhaNullException;
 import com.simuladorbanco.BancoDigital.exception.SenhaRepetidaException;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,13 @@ public class ContaControllerAdvice {
     public ResponseEntity<Object> handleSenhaRepetidaException() {
         Map<String, Object> body = new HashMap<String, Object>();
         body.put("message", "Senha já existe" );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(SaldoInsuficienteException.class)
+    public ResponseEntity<Object> handleSaldoInsuficienteException() {
+        Map<String, Object> body = new HashMap<String, Object>();
+        body.put("message", "Saldo insuficiente" );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }
